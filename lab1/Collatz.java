@@ -5,10 +5,11 @@ public class Collatz {
 /** next number  */
     public static int nextNumber(int n) {
         if (n % 2 == 0 ){
-            return (3*n)+1;
+            return     n/2;
         }
         else {
-            return  n/2;
+            return  (3*n)+1;
+
         }
     }
 
