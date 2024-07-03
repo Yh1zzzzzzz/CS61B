@@ -93,6 +93,37 @@ public class Model extends Observable {
         checkGameOver();
         setChanged();
     }
+    /* 对一个方块进行移动使其填满上方的空格
+    *  如果会触发合并，则返回真 **/
+    public boolean fill_empty(Tile tile , int merge_symbol){
+        int y = tile.row();
+        int x = tile.col();
+        Tile brick = board.tile(x, y);
+        for (int i =y+1;i<board.size();i+=1){
+            if (board.tile(x,i) ==null ){
+                if (i == board.size()-1){
+                    board.move(x,board.size()-1,brick);
+                    break;
+                }
+            }
+            else if (board.tile(x,i).value() != brick.value()){
+                board.move(x,i-1,brick);
+                break;
+            }
+            else {
+                if ( merge_symbol >0) {
+                    board.move(x,i-1,brick);
+                }
+                else{
+                    board.move(x, i, brick);
+                }
+                return true;
+            }
+
+        }
+        return false;
+
+    }
 
     /** Tilt the board toward SIDE. Return true iff this changes the board.
      *
@@ -109,11 +140,27 @@ public class Model extends Observable {
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
-
+        board.setViewingPerspective(side);
+        for (int i = 0 ; i<board.size();i++) {
+            int yht =0;
+            for (int j = board.size()-1; j >= 0 ; j--) {
+                if (board.tile(i,j) != null) {
+                    Tile brick = board.tile(i, j);
+                    boolean t = fill_empty(brick,yht);
+                   if (t){
+                       if (yht == 0) {
+                           score += brick.value() * 2;
+                           yht +=1;
+                       }
+                   }
+                    changed = true;
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -137,7 +184,15 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size ; i += 1){
+            for (int j = 0 ; j < size ; j+=1){
+                if (b.tile(i,j) == null){
+                    return  true;
+
+                }
+            }
+        }
         return false;
     }
 
@@ -147,20 +202,43 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+        for (int i = 0; i < size ; i += 1){
+            for (int j = 0 ; j < size ; j+=1){
+                if (b.tile(i,j) !=  null ){
+                    if (b.tile(i,j).value()==MAX_PIECE){
+                        return  true;
+                    }
+
+                }
+            }
+        }
         return false;
     }
 
-    /**
-     * Returns true if there are any valid moves on the board.
-     * There are two ways that there can be valid moves:
-     * 1. There is at least one empty space on the board.
-     * 2. There are two adjacent tiles with the same value.
-     */
-    public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
-    }
+        /**
+         * Returns true if there are any valid moves on the board.
+         * There are two ways that there can be valid moves:
+         * 1. There is at least one empty space on the board.
+         * 2. There are two adjacent tiles with the same value.
+         */
+        public static boolean atLeastOneMoveExists(Board b) {
+            if (emptySpaceExists(b)){
+                return true;
+            }//下面处理一行中有相同元素的情况
+            int size = b.size();
+            for (int i =0;i<size;i++){
+                for (int j = 1;j<size-1;j++){
+                        if (b.tile(i,j).value() == b.tile(i,j-1).value() || b.tile(i,j).value() ==b.tile(i,j+1).value()){
+                            return  true;
+                        }
+                        if (b.tile(j,i).value() == b.tile(j-1,i).value() || b.tile(j,i).value() ==b.tile(j+1,i).value()){
+                            return  true;
+                        }
+                }
+            }
+            return false;
+        }
 
 
     @Override

@@ -48,7 +48,7 @@ public class Tile {
         return result;
     }
 
-    /** Return the result of merging OTHERTILE with me after moving to
+    /** Return the result of merging OTHER TILE with me after moving to
      *  (COL, ROW). */
     public Tile merge(int col, int row, Tile otherTile) {
         assert value == otherTile.value();
