@@ -103,6 +103,9 @@ public class Board implements Iterable<Tile> {
         }
     }
 
+public void  test(){
+
+}
     @Override
     /** Returns the board as a string, used for debugging. */
     public String toString() {
